@@ -1,0 +1,64 @@
+---
+title: "ex43"
+author: "Dan Wakeling"
+date: "15/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+<https://projecteuler.net/problem=99>
+
+Comparing two numbers written in index form like 2^11^ and 3^7^ is not difficult, as any calculator would confirm that 2^11^ = 2048 \< 3^7^ = 2187.
+
+However, confirming that 632382^518061^ \> 519432^525806^ would be much more difficult, as both numbers contain over three million digits.
+
+Using [**base\_exp.txt**](https://projecteuler.net/project/resources/p099_base_exp.txt) (right click and 'Save Link/Target As...'), a 22K text file containing one thousand lines with a base/exponent pair on each line, determine which line number has the greatest numerical value.
+
+NOTE: The first two lines in the file represent the numbers in the example given above.
+
+# Notes
+
+I have noted that it appears that you can reduce the exponential down by division and it doesn't affect the end results of which pair is largest! I'm not yet sure why that is true but I shall try it anyway and see if I obtain the right answer.
+
+# Working
+
+```{r read file}
+
+file_path <- "C:/Users/DW24/OneDrive - Ricardo Plc/Code/project_euler/inputs/p099_base_exp.txt"
+
+file_in <- read.delim(file_path,
+                      sep=",",
+                      header=FALSE,
+                      as.is=TRUE,
+                      na.strings = c(""))
+
+data <- file_in %>% 
+  rename(base = 1,
+         exp = 2) %>% 
+  mutate(id = row_number(),
+         exp_reduc = exp / 10^5,
+         value = base ^ exp_reduc) %>% 
+  arrange(-value) %>% 
+  slice(1) %>% 
+  pull(id)
+  
+
+```
+
+# Compile Data Frame
+
+```{r data frame}
+
+
+```
+
+```{r join and add thousand}
+
+
+```

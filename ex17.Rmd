@@ -1,0 +1,119 @@
+---
+title: "ex17"
+author: "Dan Wakeling"
+date: "27/08/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+## Number letter counts
+
+If the numbers 1 to 5 are written out in words: one, two, three, four, five, then there are 3 + 3 + 5 + 4 + 4 = 19 letters used in total.
+
+If all the numbers from 1 to 1000 (one thousand) inclusive were written out in words, how many letters would be used?
+
+
+NOTE: Do not count spaces or hyphens. For example, 342 (three hundred and forty-two) contains 23 letters and 115 (one hundred and fifteen) contains 20 letters. The use of "and" when writing out numbers is in compliance with British usage.
+
+```{r code one}
+
+# end letters
+in_end <- data.frame(
+  number = c(1:9),
+  letters = c(3, 3, 5, 4, 4, 3, 5, 5, 4)
+)
+
+# teens
+in_teens <- data.frame(
+  number = c(11:19),
+  letters = c(6, 6, 8, 8, 7, 7, 9, 8, 8)
+)
+
+# tens
+in_tens <- data.frame(
+  number = seq(10, 90, by = 10),
+  letters = c(3, 6, 6, 5, 5, 5, 7, 6, 6)
+)
+
+# hundreds
+in_hundreds <- data.frame(
+  number = seq(100, 900, by = 100),
+  letters = in_end$letters + 7
+)
+
+
+```
+
+# Compile Data Frame
+
+```{r data frame}
+
+df <- data.frame(
+  number = 1:999)
+
+# add logic for which to join
+df_end <- df %>% 
+  mutate(end = number %% 10,
+         end_two = number %% 100) %>% 
+  left_join(in_end,
+            by = c("end" = "number")) %>% 
+  mutate(letters = case_when(
+    between(end_two, 11, 19) ~ NA_real_,
+    TRUE ~ letters)) %>% 
+  select(-end, -end_two)
+
+# tens
+df_tens <- df %>% 
+  mutate(tens = number %% 100) %>% 
+  left_join(in_tens,
+            by = c("tens" = "number")) %>% 
+  fill(letters) %>% 
+  mutate(letters = case_when(
+    tens %in% c(0:9, 11:19) ~ NA_real_,
+    TRUE ~ letters)) %>% 
+  select(-tens)
+
+# teens
+df_teens <- df %>% 
+  mutate(teens = number %% 100) %>% 
+  left_join(in_teens,
+            by = c("teens" = "number")) %>% 
+  select(-teens)
+
+# hundreds
+df_hundreds <- df %>% 
+  left_join(in_hundreds,
+            by = "number") %>% 
+  fill(letters)
+
+```
+
+```{r join and add thousand}
+
+# join
+df_all <- bind_rows(
+  df_end, df_tens, df_teens, df_hundreds) %>% 
+  group_by(number) %>% 
+  summarise(letters = sum(letters, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  # add and
+  mutate(letters = case_when(
+    number > 100 & number %% 100 > 0 ~ letters + 3,
+    TRUE ~ letters)) %>% 
+  # add thousand
+  bind_rows(
+    data.frame(
+      number = 1000,
+      letters = 11))
+
+
+sum(df_all$letters)
+
+```
+

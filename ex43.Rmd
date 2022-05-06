@@ -1,0 +1,135 @@
+---
+title: "ex43"
+author: "Dan Wakeling"
+date: "29/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+## My approach
+
+It worked, but boy was it ugly :).
+
+## Sub-string divisibility
+
+The number, 1406357289, is a 0 to 9 pandigital number because it is made up of each of the digits 0 to 9 in some order, but it also has a rather interesting sub-string divisibility property.
+
+Let d1 be the 1st digit, d2 be the 2nd digit, and so on. In this way, we note the following:
+
+d2d3d4=406 is divisible by 2
+d3d4d5=063 is divisible by 3
+d4d5d6=635 is divisible by 5
+d5d6d7=357 is divisible by 7
+d6d7d8=572 is divisible by 11
+d7d8d9=728 is divisible by 13
+d8d9d10=289 is divisible by 17
+
+Find the sum of all 0 to 9 pandigital numbers with this property.
+
+```{r code one}
+
+nums <- 12:987
+
+vals_use <- c(2, 3, 5, 7, 11, 13, 17)
+
+func_dfs <- function(val_entry){
+  
+  df <- data.frame(val = nums) %>% 
+    filter(val %% val_entry == 0) %>% 
+    mutate(df_remainder = val_entry,
+           val = as.character(val),
+           val = case_when(
+             nchar(val) == 2 ~ paste0("0", val),
+             TRUE ~ val)) %>% 
+    filter(str_sub(val, 1, 1) != str_sub(val, 3, 3),
+           str_sub(val, 1, 1) != str_sub(val, 2, 2),
+           str_sub(val, 2, 2) != str_sub(val, 3, 3))
+  
+}
+
+x <- purrr::map_dfr(.x = vals_use, .f = func_dfs) %>% 
+  group_split(df_remainder) %>% 
+  map(., ~ (.x %>% select(-df_remainder)))
+
+a <- expand_grid(unlist(x[1]), unlist(x[2])) %>% 
+  rename(old = 1,
+         new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  expand_grid(unlist(x[3])) %>% 
+  rename(new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3),
+         str_sub(old, 2, 2) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  expand_grid(unlist(x[4])) %>% 
+  rename(new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3),
+         str_sub(old, 2, 2) != str_sub(new, 3, 3),
+         str_sub(old, 3, 3) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  expand_grid(unlist(x[5])) %>% 
+  rename(new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3),
+         str_sub(old, 2, 2) != str_sub(new, 3, 3),
+         str_sub(old, 3, 3) != str_sub(new, 3, 3),
+         str_sub(old, 4, 4) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  expand_grid(unlist(x[6])) %>% 
+  rename(new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3),
+         str_sub(old, 2, 2) != str_sub(new, 3, 3),
+         str_sub(old, 3, 3) != str_sub(new, 3, 3),
+         str_sub(old, 4, 4) != str_sub(new, 3, 3),
+         str_sub(old, 5, 5) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  expand_grid(unlist(x[7])) %>% 
+  rename(new = 2) %>% 
+  filter(str_sub(new, 1, 1) == str_sub(old, -2, -2),
+         str_sub(new, 2, 2) == str_sub(old, -1, -1),
+         str_sub(old, 1, 1) != str_sub(new, 3, 3),
+         str_sub(old, 2, 2) != str_sub(new, 3, 3),
+         str_sub(old, 3, 3) != str_sub(new, 3, 3),
+         str_sub(old, 4, 4) != str_sub(new, 3, 3),
+         str_sub(old, 5, 5) != str_sub(new, 3, 3),
+         str_sub(old, 6, 6) != str_sub(new, 3, 3)) %>% 
+  mutate(old = paste0(old, str_sub(new, -1, -1))) %>% 
+  select(1) %>% 
+  mutate(old = as.numeric(old))
+
+a$old[1] <- paste0(4, a$old[1])
+a$old[2] <- paste0(4, a$old[2])
+a$old[3] <- paste0(4, a$old[3])
+a$old[4] <- paste0(1, a$old[4])
+a$old[5] <- paste0(1, a$old[5])
+a$old[6] <- paste0(1, a$old[6])
+
+a <- a %>% 
+  mutate(old = as.numeric(old))
+
+sum(a$old)
+
+# add first digit to the front
+
+```
+

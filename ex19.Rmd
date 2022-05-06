@@ -1,0 +1,71 @@
+---
+title: "ex19"
+author: "Dan Wakeling"
+date: "29/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+## Counting Sundays
+
+You are given the following information, but you may prefer to do some research for yourself.
+
+1 Jan 1900 was a Monday.
+Thirty days has September,
+April, June and November.
+All the rest have thirty-one,
+Saving February alone,
+Which has twenty-eight, rain or shine.
+And on leap years, twenty-nine.
+A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
+
+How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
+
+```{r code one}
+
+days_of_week <- c(rep(0, 6), 1)
+
+years <- 1900:2000
+
+days_year <- 1:365
+
+months <- c(rep(1, 31),
+            rep(2, 28),
+            rep(3, 31),
+            rep(4, 30),
+            rep(5, 31),
+            rep(6, 30),
+            rep(7, 31),
+            rep(8, 31),
+            rep(9, 30),
+            rep(10, 31),
+            rep(11, 30),
+            rep(12, 31))
+
+cal <- expand_grid(years, months)
+
+# add leap years
+df_add <- data.frame(
+  years = seq(1904, 2000, by = 4),
+  months = 2)
+
+cal2 <- bind_rows(cal, df_add) %>% 
+  arrange(years, months) %>% 
+  mutate(id = row_number(),
+         first_of_month = case_when(
+           lag(months, 1) == months ~ FALSE,
+           TRUE ~ TRUE)) %>% 
+  filter(id %% 7 == 0,
+         first_of_month == TRUE,
+         years > 1900)
+
+nrow(cal2)
+
+```
+
