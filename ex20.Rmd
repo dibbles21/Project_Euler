@@ -1,7 +1,7 @@
 ---
-title: "ex19"
+title: "ex20"
 author: "Dan Wakeling"
-date: "05/12/2021"
+date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -29,7 +29,6 @@ Factors of 5 can be removed when combined with a factor of 2
 
 ```{r code one}
 
-# already removed a 2 and 5
 df <- data.frame(
   vals = c(1:100)
 ) %>% 
@@ -39,11 +38,14 @@ df <- data.frame(
          
          vals_new = case_when(
            div_ten == 0 ~ as.integer(vals / 10),
-           # div_five == 0 & div_ten != 0 ~ as.integer(vals / 5),
-           # div_two_lag == 0 & lead(div_ten, 1) != 0 ~ as.integer(vals / 2),
-           TRUE ~ vals))
-# %>% 
-#   filter(!vals %in% c(2, 20, 25, 50, 100))
+           div_five == 0 & div_ten != 0 ~ as.integer(vals / 5),
+           div_two_lag == 0 & lead(div_ten, 1) != 0 ~ as.integer(vals / 2),
+           TRUE ~ vals)) %>%
+  # 100 has no effect.
+  # 50 * 2 = 100
+  # 20 / 10 = 2 and 25 /5 = 5 so they reduce to 10
+  filter(!vals %in% c(2, 20, 25, 50, 100),
+         vals_new != 1)
 
 result <- cumprod(df$vals_new)
 
@@ -60,6 +62,14 @@ df_final <- data.frame(
          string = cumsum(string))
 
 final_result <- max(df_final$string)
+
+```
+
+## Answer
+
+```{r answer, echo=FALSE}
+
+final_result
 
 ```
 
